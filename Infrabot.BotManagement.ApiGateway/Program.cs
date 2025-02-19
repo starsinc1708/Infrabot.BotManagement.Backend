@@ -24,8 +24,6 @@ builder.Services.AddSingleton<KafkaProducer>();
 
 var app = builder.Build();
 
-app.UsePathBase("/api-gateway");
-
 // Регистрация эндпоинтов
 app.MapTelegramApiEndpoints();
 app.MapTelegramUpdatesEndpoints();
@@ -33,7 +31,5 @@ app.MapTelegramUpdatesEndpoints();
 app.MapOpenApi();
 
 app.MapScalarApiReference();
-    
-app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.Run();

@@ -25,8 +25,6 @@ builder.Services.AddScoped<TgBotModuleRepository>();
 
 var app = builder.Build();
 
-app.UsePathBase("/web-api/");
-
 app.MapGrpcService<ModuleUpdateSettingsServiceImpl>();
 app.MapGrpcService<TelegramBotServiceImpl>();
 app.MapGrpcService<TgBotModuleServiceImpl>();

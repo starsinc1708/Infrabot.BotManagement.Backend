@@ -10,6 +10,16 @@ services:
       - "5002:5002"
     networks:
       - infrabot_network
+  
+  web-api:
+    build:
+      context: .
+      dockerfile: Infrabot.BotManagement.WebAPI/Dockerfile
+    container_name: bot-management-backend-webapi
+    ports:
+      - "5001:5001"
+    networks:
+      - infrabot_network
 
 networks:
   infrabot_network:
