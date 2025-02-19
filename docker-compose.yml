@@ -1,0 +1,28 @@
+﻿version: "3.8"
+
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Infrabot.BotManagement.WebAPI/Dockerfile
+    container_name: bot-management-backend-webapi
+    ports:
+      - "5001:5001"
+    networks:
+      - infrabot_network
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: Infrabot.BotManagement.ApiGateway/Dockerfile
+    container_name: bot-management-backend-apigateway
+    ports:
+      - "5002:5002"
+    depends_on:
+      - webapi
+    networks:
+      - infrabot_network
+
+networks:
+  infrabot_network:
+    driver: bridge
