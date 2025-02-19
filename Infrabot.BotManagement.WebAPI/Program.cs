@@ -4,7 +4,8 @@ using Infrabot.BotManagement.WebAPI.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddConsole();
+builder.WebHost.UseUrls("http://*/infrabot/bot-management/web-api");
+
 
 builder.Services.AddOpenApi();
 
