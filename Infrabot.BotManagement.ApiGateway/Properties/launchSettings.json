@@ -5,6 +5,7 @@
       "commandName": "Project",
       "dotnetRunMessages": false,
       "launchBrowser": false,
+      "applicationUrl": "https://localhost:5002/api-gateway/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
