@@ -373,7 +373,3 @@ FodyWeavers.xsd
 
 /Infrabot.BotManagement.WebAPI/bin/
 /Infrabot.BotManagement.WebAPI/obj/
-
-*/appsettings.json
-*/appsettings.Development.json
-
