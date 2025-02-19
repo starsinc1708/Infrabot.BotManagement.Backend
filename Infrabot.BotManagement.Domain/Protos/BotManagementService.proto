@@ -1,0 +1,212 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Infrabot.BotManagement.Domain.Grpc";
+
+// ========================= ModuleUpdateSettings =========================
+
+service ModuleUpdateSettingsService {
+  rpc GetByModuleId(ModuleIdRequest) returns (ModuleUpdateSettingsResponse);
+}
+
+message ModuleIdRequest {
+  int64 module_id = 1;
+}
+
+message ModuleUpdateSettingsResponse {
+  repeated ModuleUpdateSettings settings = 1;
+}
+
+message ModuleUpdateSettings {
+  int64 module_id = 1;
+  int64 update_settings_id = 2;
+}
+
+// ========================= TelegramBot =========================
+
+service TelegramBotService {
+  rpc Add(CreateBotRequest) returns (TelegramBotResponse);
+  rpc Update(CreateBotRequest) returns (TelegramBotResponse);
+  rpc Patch(UpdateBotRequest) returns (TelegramBotResponse);
+  rpc Delete(BotIdRequest) returns (DeleteBotResponse);
+
+  rpc GetAll(google.protobuf.Empty) returns (TelegramBotListResponse);
+  rpc GetById(BotIdRequest) returns (TelegramBotResponse);
+  rpc GetWithModules(BotIdRequest) returns (TelegramBotWithModulesResponse);
+
+  rpc AddModules(BotModuleOperationRequest) returns (TelegramBotWithModulesResponse);
+  rpc RemoveModules(BotModuleOperationRequest) returns (TelegramBotWithModulesResponse);
+}
+
+message BotIdRequest {
+  int64 bot_id = 1;
+}
+
+message CreateBotRequest {
+  TelegramBot bot = 1;
+}
+
+message UpdateBotRequest {
+  int64 id = 1;
+  optional string token = 2;
+  optional string first_name = 3;
+  optional string last_name = 4;
+  optional bool can_join_groups = 5;
+  optional bool can_read_all_group_messages = 6;
+  optional bool supports_inline_queries = 7;
+  optional bool can_connect_to_business = 8;
+  optional bool has_main_web_app = 9;
+  optional bool enabled = 10;
+}
+
+message TelegramBotResponse {
+  optional TelegramBot bot = 1;
+}
+
+message TelegramBotListResponse {
+  repeated TelegramBot bots = 1;
+}
+
+message TelegramBotWithModulesResponse {
+  TelegramBot bot = 1;
+  repeated ProcessingModule bot_modules = 10;
+}
+
+message DeleteBotResponse {
+  bool success = 1;
+}
+
+message TelegramBot {
+  int64 id = 1;
+  string token = 2;
+  string first_name = 3;
+  string last_name = 4;
+  bool can_join_groups = 5;
+  bool can_read_all_group_messages = 6;
+  bool supports_inline_queries = 7;
+  bool can_connect_to_business = 8;
+  bool has_main_web_app = 9;
+  bool enabled = 10;
+}
+
+// ========================= BotModule =========================
+
+service TgBotModuleService {
+  rpc Add(CreateBotModuleRequest) returns (ProcessingModuleResponse);
+  rpc Update(UpdateBotModuleRequest) returns (ProcessingModuleResponse);
+  rpc Patch(PatchBotModuleRequest) returns (ProcessingModuleResponse);
+  rpc Delete(ModuleIdRequest) returns (DeleteProcessingModuleResponse);
+
+  rpc GetAll(google.protobuf.Empty) returns (ProcessingModuleListResponse);
+  rpc GetWithSettings(ModuleIdRequest) returns (ProcessingModuleWithSettingsResponse);
+  rpc GetByUpdateSettingsId(UpdateSettingsIdRequest) returns (ProcessingModuleIdListResponse);
+
+  rpc AddSettings(ModuleSettingsOperationRequest) returns (ProcessingModuleWithSettingsResponse);
+  rpc RemoveSettings(ModuleSettingsOperationRequest) returns (ProcessingModuleWithSettingsResponse);
+}
+
+message CreateBotModuleRequest {
+  string name = 2;
+  string ip_address = 3;
+  int32 port = 4;
+  string health_check_endpoint = 5;
+}
+
+message UpdateBotModuleRequest {
+  int64 id = 1;
+  string name = 2;
+  string ip_address = 3;
+  int32 port = 4;
+  string health_check_endpoint = 5;
+}
+
+message PatchBotModuleRequest {
+  int64 id = 1;
+  optional string name = 2;
+  optional string ip_address = 3;
+  optional int32 port = 4;
+  optional string health_check_endpoint = 5;
+}
+
+message ProcessingModuleResponse {
+  ProcessingModule module = 1;
+}
+
+message ProcessingModuleListResponse {
+  repeated ProcessingModule modules = 1;
+}
+
+message ProcessingModuleIdListResponse {
+  repeated int64 modules = 1;
+}
+
+message ProcessingModuleWithSettingsResponse {
+  ProcessingModule module = 1;
+  repeated ModuleUpdateSettings update_settings = 2;
+}
+
+message DeleteProcessingModuleResponse {
+  bool success = 1;
+}
+
+message ProcessingModule {
+  int64 id = 1;
+  string name = 2;
+  string ip_address = 3;
+  int32 port = 4;
+  string health_check_endpoint = 5;
+}
+
+
+// ========================= BotModule-Operations =========================
+
+message BotModuleOperationRequest {
+  int64 bot_id = 1;
+  repeated int64 module_ids = 2;
+}
+
+message ModuleSettingsOperationRequest {
+  int64 module_id = 1;
+  repeated int64 update_setting_ids = 2;
+}
+
+
+// ========================= UpdateSettings =========================
+
+service UpdateSettingsService {
+  rpc GetBySourceId(SourceIdRequest) returns (UpdateSettingsListResponse);
+  rpc GetByTypeId(TypeIdRequest) returns (UpdateSettingsListResponse);
+  rpc GetBySourceAndType(SourceAndTypeRequest) returns (UpdateSettingsResponse);
+}
+
+message UpdateSettingsIdRequest {
+  int64 update_settings_id = 1;
+}
+
+message SourceIdRequest {
+  int64 source_id = 1;
+}
+
+message TypeIdRequest {
+  int64 type_id = 1;
+}
+
+message SourceAndTypeRequest {
+  int32 update_source = 1;
+  int32 update_type = 2;
+}
+
+message UpdateSettingsListResponse {
+  repeated UpdateSettings settings = 1;
+}
+
+message UpdateSettingsResponse {
+  UpdateSettings setting = 1;
+}
+
+message UpdateSettings {
+  int64 id = 1;
+  int32 update_source = 2;
+  int32 update_type = 3;
+}
