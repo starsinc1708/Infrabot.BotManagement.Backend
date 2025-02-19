@@ -4,9 +4,6 @@ using Infrabot.BotManagement.WebAPI.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://*/infrabot/bot-management/web-api");
-
-
 builder.Services.AddOpenApi();
 
 builder.Services.AddGrpc();
@@ -31,11 +28,6 @@ app.MapGrpcService<ModuleUpdateSettingsServiceImpl>();
 app.MapGrpcService<TelegramBotServiceImpl>();
 app.MapGrpcService<TgBotModuleServiceImpl>();
 app.MapGrpcService<UpdateSettingsServiceImpl>();
-
-/*if (app.Environment.IsDevelopment())
-{
-    
-}*/
 
 app.MapOpenApi();
 app.MapGrpcReflectionService();

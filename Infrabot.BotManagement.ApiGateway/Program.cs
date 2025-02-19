@@ -7,8 +7,6 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://*/infrabot/bot-management/api-gateway");
-
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = null;
@@ -28,11 +26,6 @@ var app = builder.Build();
 // Регистрация эндпоинтов
 app.MapTelegramApiEndpoints();
 app.MapTelegramUpdatesEndpoints();
-
-/*if (app.Environment.IsDevelopment())
-{
-    
-}*/
 
 app.MapOpenApi();
 
