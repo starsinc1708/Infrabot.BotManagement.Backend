@@ -1,14 +1,21 @@
-﻿version: '3.8'
+﻿version: '3.4'
 
 services:
-  api-gateway:
-    image: infrabot-api-gateway
+  infrabot-api:
+    image: infrabot-api
     build:
       context: .
       dockerfile: Infrabot.BotManagement.ApiGateway/Dockerfile
     ports:
       - "5002:5002"
+      - "6002:6002"
     environment:
-      - ASPNETCORE_URLS=https://+:5002
-      - ASPNETCORE_ENVIRONMENT=Production
-    restart: unless-stopped
+        - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+        - /etc/nginx/ssl:/etc/ssl/certs
+    networks:
+        - infrabot-network
+
+networks:
+  infrabot-network:
+    driver: bridge

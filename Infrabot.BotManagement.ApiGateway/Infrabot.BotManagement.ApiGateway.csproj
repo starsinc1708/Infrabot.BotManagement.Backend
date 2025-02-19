@@ -48,5 +48,11 @@
 	<ItemGroup>
 	  <None Remove="Properties\PublishProfiles\iiisss.pubxml" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="..\.dockerignore">
+	    <Link>.dockerignore</Link>
+	  </Content>
+	</ItemGroup>
 	
 </Project>

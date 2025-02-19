@@ -1,24 +1,20 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 5002
-ENV ASPNETCORE_URLS="https://+:5002"
-ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+EXPOSE 6002
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Infrabot.BotManagement.ApiGateway/Infrabot.BotManagement.ApiGateway.csproj", "Infrabot.BotManagement.ApiGateway/"]
-COPY ["Infrabot.BotManagement.Broker/Infrabot.BotManagement.Broker.csproj", "Infrabot.BotManagement.Broker/"]
-COPY ["Infrabot.BotManagement.Domain/Infrabot.BotManagement.Domain.csproj", "Infrabot.BotManagement.Domain/"]
 RUN dotnet restore "Infrabot.BotManagement.ApiGateway/Infrabot.BotManagement.ApiGateway.csproj"
 COPY . .
 WORKDIR "/src/Infrabot.BotManagement.ApiGateway"
-RUN dotnet build "Infrabot.BotManagement.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Infrabot.BotManagement.ApiGateway.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Infrabot.BotManagement.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Infrabot.BotManagement.ApiGateway.csproj" -c Release -o /app/publish
 
+# Стадия для исполнения
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
