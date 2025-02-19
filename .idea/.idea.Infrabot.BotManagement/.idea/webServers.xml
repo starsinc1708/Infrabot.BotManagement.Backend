@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="9b60f09b-17b0-40cd-9c96-2cf77b82db39" name="holod" url="http://192.168.0.101">
+        <fileTransfer rootFolder="/home/starsinc/infrabot/bot-management/backend" accessType="SFTP" host="192.168.0.101" port="22" sshConfigId="1c66a2d3-f34a-4e5c-afbf-f7178c766f4f" sshConfig="starsinc@192.168.0.101:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" isUseSudo="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
