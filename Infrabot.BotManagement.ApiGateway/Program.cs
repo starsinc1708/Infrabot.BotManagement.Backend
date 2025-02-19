@@ -13,7 +13,7 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Listen(IPAddress.Any, 5002); // HTTP
     options.Listen(IPAddress.Any, 6002, listenOptions =>
     {
-        listenOptions.UseHttps("/etc/ssl/certs/infrabot.ru.crt", "/etc/ssl/certs/infrabot.ru.key");
+        listenOptions.UseHttps("/etc/nginx/ssl/infrabot.ru.crt", "/etc/nginx/ssl/infrabot.ru.key");
     });
 });
 
