@@ -1,30 +1,13 @@
 ﻿version: "3.8"
 
 services:
-  webapi:
-    build:
-      context: .
-      dockerfile: Infrabot.BotManagement.WebAPI/Dockerfile
-    container_name: bot-management-backend-webapi
-    environment:
-      - ASPNETCORE_URLS=http://+:5001
-    ports:
-      - "5001:5001"
-    networks:
-      - infrabot_network
-
   apigateway:
     build:
       context: .
       dockerfile: Infrabot.BotManagement.ApiGateway/Dockerfile
     container_name: bot-management-backend-apigateway
-    environment:
-      - ASPNETCORE_URLS=http://+:5002
-      - WEBAPI_URL=http://webapi:5001
     ports:
       - "5002:5002"
-    depends_on:
-      - webapi
     networks:
       - infrabot_network
 

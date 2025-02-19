@@ -24,20 +24,7 @@ builder.Services.AddSingleton<KafkaProducer>();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
-});
-
-app.Use((context, next) =>
-{
-    if (context.Request.Headers.TryGetValue("X-Forwarded-Prefix", out var prefix))
-    {
-        context.Request.PathBase = new PathString(prefix);
-    }
-    return next();
-});
-
+app.UsePathBase("/api-gateway");
 
 // Регистрация эндпоинтов
 app.MapTelegramApiEndpoints();
