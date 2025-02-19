@@ -15,21 +15,34 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+// Добавляем поддержку Forwarded Headers (для работы за прокси)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 builder.Services.AddOpenApi();
-
 builder.AddGrpcClients();
-
 builder.AddTelegramBotClient();
 builder.Services.AddSingleton<KafkaProducer>();
 
 var app = builder.Build();
 
-// Регистрация эндпоинтов
+app.UseForwardedHeaders();
+
+
+// Настраиваем маршруты
 app.MapTelegramApiEndpoints();
 app.MapTelegramUpdatesEndpoints();
-
 app.MapOpenApi();
-
 app.MapScalarApiReference();
 
-app.Run();
+// Исправленный редирект, чтобы он учитывал прокси
+app.MapGet("/", (HttpContext ctx) =>
+{
+    var prefix = ctx.Request.Headers["X-Forwarded-Prefix"].FirstOrDefault() ?? "";
+    return Results.Redirect($"{prefix}/scalar");
+});
+
+// Запуск с явным указанием порта
+app.Run("https://0.0.0.0:5002");
