@@ -4,14 +4,6 @@ using Infrabot.BotManagement.WebAPI.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(5001, listenOptions =>
-    {
-        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
-    });
-});
-
 builder.Logging.AddConsole();
 
 builder.Services.AddOpenApi();

@@ -44,5 +44,9 @@
 	<ItemGroup>
 		<Protobuf Include="..\Infrabot.BotManagement.Domain\Protos\BotManagementService.proto" GrpcServices="Client" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Properties\PublishProfiles\iiisss.pubxml" />
+	</ItemGroup>
 	
 </Project>
