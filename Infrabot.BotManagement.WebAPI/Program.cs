@@ -1,6 +1,7 @@
 using Infrabot.BotManagement.Domain;
 using Infrabot.BotManagement.Domain.Repositories;
 using Infrabot.BotManagement.WebAPI.GrpcServices;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,20 @@ builder.Services.AddScoped<TelegramBotRepository>();
 builder.Services.AddScoped<TgBotModuleRepository>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+});
+
+app.Use((context, next) =>
+{
+    if (context.Request.Headers.TryGetValue("X-Forwarded-Prefix", out var prefix))
+    {
+        context.Request.PathBase = new PathString(prefix);
+    }
+    return next();
+});
 
 app.MapGrpcService<ModuleUpdateSettingsServiceImpl>();
 app.MapGrpcService<TelegramBotServiceImpl>();

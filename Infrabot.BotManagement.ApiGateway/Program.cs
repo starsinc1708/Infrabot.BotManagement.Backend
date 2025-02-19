@@ -3,6 +3,7 @@ using Infrabot.BotManagement.ApiGateway;
 using Infrabot.BotManagement.ApiGateway.Endpoints;
 using Infrabot.BotManagement.Broker.Kafka;
 using Infrabot.BotManagement.Domain;
+using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,21 @@ builder.AddTelegramBotClient();
 builder.Services.AddSingleton<KafkaProducer>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+});
+
+app.Use((context, next) =>
+{
+    if (context.Request.Headers.TryGetValue("X-Forwarded-Prefix", out var prefix))
+    {
+        context.Request.PathBase = new PathString(prefix);
+    }
+    return next();
+});
+
 
 // Регистрация эндпоинтов
 app.MapTelegramApiEndpoints();
