@@ -31,11 +31,13 @@ app.MapGrpcService<TelegramBotServiceImpl>();
 app.MapGrpcService<TgBotModuleServiceImpl>();
 app.MapGrpcService<UpdateSettingsServiceImpl>();
 
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapGrpcReflectionService();
-}
+    
+}*/
+
+app.MapOpenApi();
+app.MapGrpcReflectionService();
 
 await app.TryApplyDatabaseMigrations();
 

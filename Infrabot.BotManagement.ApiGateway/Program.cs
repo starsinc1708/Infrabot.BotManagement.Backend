@@ -27,13 +27,15 @@ var app = builder.Build();
 app.MapTelegramApiEndpoints();
 app.MapTelegramUpdatesEndpoints();
 
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-
-    app.MapScalarApiReference();
     
-    app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
-}
+}*/
+
+app.MapOpenApi();
+
+app.MapScalarApiReference();
+    
+app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
 app.Run();
