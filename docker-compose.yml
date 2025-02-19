@@ -5,7 +5,7 @@ services:
     image: infrabot-api-gateway
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Infrabot.BotManagement.ApiGateway/Dockerfile
     ports:
       - "5002:5002"
     environment:
