@@ -1,7 +1,7 @@
 ﻿version: '3.4'
 
 services:
-  infrabot-api:
+  infrabot-api-gateway:
     image: infrabot-api
     build:
       context: .
@@ -11,12 +11,43 @@ services:
     environment:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__Kafka="kafka:9092"
-      - BotManagement__BaseUrl="http://web-api:5001"
+      - ConnectionStrings__Kafka=kafka:9092
+      - BotManagement__BaseUrl=http://bot-management-api:8080
     networks:
       - infrabot-network
     depends_on:
       - kafka
+      - redis
+      - bot-management-db
+  
+  bot-management-api:
+    image: bot-management-api
+    build:
+      context: .
+      dockerfile: Infrabot.BotManagement.WebAPI/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - PostgreSQL__BotManagementDb=Host=bot-management-db;Port=5432;Database=bot_management;Username=postgres;Password=postgres
+      - ConnectionStrings__Redis=redis:6379
+    networks:
+      - infrabot-network
+    depends_on:
+      - kafka
+      - redis
+      - bot-management-db
+  
+  bot-management-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: bot_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - infrabot-network
   
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -24,6 +55,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - infrabot-network
     ports:
       - "22181:2181"
 
@@ -34,6 +67,8 @@ services:
     ports:
       - "29092:29092"
     hostname: kafka
+    networks:
+      - infrabot-network
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -56,11 +91,15 @@ services:
     links:
       - kafka
       - zookeeper
+    networks:
+      - infrabot-network
   
   redis:
     image: redis
     ports:
       - "6379:6379"
+    networks:
+      - infrabot-network
       
 networks:
   infrabot-network:

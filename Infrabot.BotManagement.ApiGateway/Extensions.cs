@@ -27,6 +27,7 @@ public static class Extensions
         builder.Services.AddGrpcClient<ModuleUpdateSettingsService.ModuleUpdateSettingsServiceClient>(o =>
         {
             o.Address = new Uri(baseUrl);
+            
         });
         
         builder.Services.AddGrpcClient<TelegramBotService.TelegramBotServiceClient>(o =>

@@ -20,11 +20,12 @@ public static class TelegramApiEndpoints
 			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
 			CancellationToken cancellationToken) =>
 		{
-			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
-			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 			try
 			{
+				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
+				
 				var webhookInfo = await bot.GetWebhookInfo(cancellationToken);
 				return Results.Ok(webhookInfo);
 			}
@@ -40,11 +41,12 @@ public static class TelegramApiEndpoints
 			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
 			CancellationToken cancellationToken) =>
 		{
-			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
-			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 			try
 			{
+				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
+				
 				if (request.AllowedUpdates != null)
 				{
 					await bot.SetWebhook(
@@ -83,12 +85,12 @@ public static class TelegramApiEndpoints
 			IConfiguration configuration,
 			CancellationToken cancellationToken) =>
 		{
-			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
-			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
-			
 			try
 			{
+				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
+				
 				var webhookSettings = await bot.GetWebhookInfo(cancellationToken);
 				await bot.DeleteWebhook(true, cancellationToken: cancellationToken);
 				await bot.DropPendingUpdates(cancellationToken: cancellationToken);
@@ -102,7 +104,7 @@ public static class TelegramApiEndpoints
 					ipAddress: webhookSettings.IpAddress,
 					cancellationToken: cancellationToken);
 				
-				var tgBotInfoModel = botInfo.MapToModel(configuration["Bot:Token"]!);
+				var tgBotInfoModel = botInfo.MapToModel(botToken);
 				
 				ArgumentNullException.ThrowIfNull(tgBotInfoModel);
 
