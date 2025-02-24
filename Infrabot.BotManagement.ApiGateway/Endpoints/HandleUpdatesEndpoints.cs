@@ -5,7 +5,6 @@ using Infrabot.BotManagement.Broker.Kafka;
 using Infrabot.BotManagement.Domain.Grpc;
 using Infrabot.BotManagement.Domain.UpdateProcessingUtils;
 using Microsoft.AspNetCore.Mvc;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 using UpdateSettings = Infrabot.BotManagement.Domain.Models.UpdateSettings;
 using UpdateSource = Infrabot.BotManagement.Domain.Enums.UpdateSource;
@@ -26,7 +25,6 @@ public static class HandleUpdatesEndpoints
 
     private static async Task<IResult> HandleTelegramUpdate(
         Update update,
-        TelegramBotClient bot,
         [FromServices] UpdateSettingsService.UpdateSettingsServiceClient updateSettingsClient,
         [FromServices] TgBotModuleService.TgBotModuleServiceClient botModuleClient,
         [FromServices] KafkaProducer kafkaProducer,
@@ -57,7 +55,7 @@ public static class HandleUpdatesEndpoints
         var topic = $"updates_{updateSource}_{update.Type}".ToLowerInvariant();
         await ProduceKafkaMessage(update, updateSetting, updateSource, activeModules, kafkaProducer, topic, cancellationToken);
 
-        return await NotifyProcessingResult(update, bot, activeModules.Count, logger, cancellationToken);
+        return NotifyProcessingResult(update, activeModules.Count, logger);
     }
     
     private static bool IsUnknownUpdate(Update update, UpdateSource updateSource, ILogger logger)
@@ -151,12 +149,10 @@ public static class HandleUpdatesEndpoints
     }
 
     
-    private static async Task<IResult> NotifyProcessingResult(
+    private static IResult NotifyProcessingResult(
         Update update,
-        TelegramBotClient bot,
         int activeModuleCount,
-        ILogger logger,
-        CancellationToken cancellationToken)
+        ILogger logger)
     {
         var resultMessage = new StringBuilder()
             .Append("[Update processed] - TYPE[")
@@ -169,11 +165,6 @@ public static class HandleUpdatesEndpoints
             .ToString();
 
         logger.LogInformation(resultMessage);
-
-        if (update.Message is not null)
-        {
-            await bot.SendMessage(update.Message.Chat.Id, resultMessage, cancellationToken: cancellationToken);
-        }
 
         return Results.Ok(resultMessage);
     }

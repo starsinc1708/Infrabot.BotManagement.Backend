@@ -1,9 +1,11 @@
-﻿using Infrabot.BotManagement.Domain.DTOs.BotRequests;
+﻿using Google.Protobuf.WellKnownTypes;
+using Infrabot.BotManagement.Domain.DTOs.BotRequests;
 using Infrabot.BotManagement.Domain.Grpc;
 using Infrabot.BotManagement.Domain.Mappings;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using Enum = System.Enum;
 
 namespace Infrabot.BotManagement.ApiGateway.Endpoints;
 
@@ -13,10 +15,14 @@ public static class TelegramApiEndpoints
 	{
 		var group = app.MapGroup("/tgbot").WithTags("TelegramAPI");
 		
-		group.MapGet("/bot/getWebhookInfo", async (
-			TelegramBotClient bot, 
+		group.MapGet("/{botId:long}/getWebhookInfo", async (
+			long botId,
+			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
 			CancellationToken cancellationToken) =>
 		{
+			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 			try
 			{
 				var webhookInfo = await bot.GetWebhookInfo(cancellationToken);
@@ -28,11 +34,15 @@ public static class TelegramApiEndpoints
 			}
 		});
 		
-		group.MapPost("/setWebhook", async (
+		group.MapPost("/{botId:long}/setWebhook", async (
+			long botId,
 			[FromBody] SetWebhook.Request request,
-			TelegramBotClient bot,
+			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
 			CancellationToken cancellationToken) =>
 		{
+			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 			try
 			{
 				if (request.AllowedUpdates != null)
@@ -67,12 +77,16 @@ public static class TelegramApiEndpoints
 			}
 		});
 
-		group.MapPost("/bot/getMe", async (
-			TelegramBotClient bot, 
-			[FromServices] TelegramBotService.TelegramBotServiceClient client,
+		group.MapPost("/{botId:long}/getMe", async (
+			long botId,
+			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
 			IConfiguration configuration,
 			CancellationToken cancellationToken) =>
 		{
+			var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
+			var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+			var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
+			
 			try
 			{
 				var webhookSettings = await bot.GetWebhookInfo(cancellationToken);
@@ -92,10 +106,10 @@ public static class TelegramApiEndpoints
 				
 				ArgumentNullException.ThrowIfNull(tgBotInfoModel);
 
-				var dbBot = await client.GetByIdAsync(new BotIdRequest { BotId = botInfo.Id }, cancellationToken: cancellationToken);
+				var dbBot = await botClient.GetByIdAsync(new BotIdRequest { BotId = botInfo.Id }, cancellationToken: cancellationToken);
 				
 				if (dbBot.Bot == null)
-					await client.AddAsync(new CreateBotRequest { Bot = MapBot(tgBotInfoModel) }, cancellationToken: cancellationToken);
+					await botClient.AddAsync(new CreateBotRequest { Bot = MapBot(tgBotInfoModel) }, cancellationToken: cancellationToken);
 				
 				return Results.Ok(tgBotInfoModel);
 			}

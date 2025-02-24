@@ -18,7 +18,7 @@ public static class Extensions
     public static void AddTelegramBotClient(this WebApplicationBuilder builder)
     {
         var botToken = builder.Configuration["Bot:Token"];
-
+        
         if (string.IsNullOrEmpty(botToken))
             throw new InvalidOperationException("Bot token is not provided in the configuration.");
 
