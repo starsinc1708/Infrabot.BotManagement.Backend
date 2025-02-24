@@ -108,10 +108,19 @@ public static class TelegramApiEndpoints
 				
 				ArgumentNullException.ThrowIfNull(tgBotInfoModel);
 
-				var dbBot = await botClient.GetByIdAsync(new BotIdRequest { BotId = botInfo.Id }, cancellationToken: cancellationToken);
-				
+				var dbBot = await botClient.GetByIdAsync(new BotIdRequest { BotId = botInfo.Id }, 
+					cancellationToken: cancellationToken);
+
 				if (dbBot.Bot == null)
-					await botClient.AddAsync(new CreateBotRequest { Bot = MapBot(tgBotInfoModel) }, cancellationToken: cancellationToken);
+				{
+					await botClient.AddAsync(new CreateBotRequest { Bot = MapBot(tgBotInfoModel) }, 
+						cancellationToken: cancellationToken);
+				}
+				else
+				{
+					await botClient.UpdateAsync(new CreateBotRequest { Bot = MapBot(tgBotInfoModel) },
+						cancellationToken: cancellationToken);
+				}
 				
 				return Results.Ok(tgBotInfoModel);
 			}
