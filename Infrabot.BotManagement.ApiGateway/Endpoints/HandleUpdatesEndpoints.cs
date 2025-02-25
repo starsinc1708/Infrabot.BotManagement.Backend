@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Infrabot.BotManagement.Broker;
@@ -123,16 +124,14 @@ public static class HandleUpdatesEndpoints
         {
             UpdateType = update.Type.ToString(),
             UpdateSource = updateSource.ToString(),
-            Timestamp = DateTime.UtcNow.ToString("o"),
+            Timestamp = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture),
             Modules = activeModuleIds,
             Update = update
         };
-
-        var messageValue = JsonSerializer.Serialize(kafkaMessage, JsonSerializerOptions);
         
         var messageKey = updateSetting.Id.ToString();
 
-        await kafkaProducer.Produce(topic, messageValue, messageKey, cancellationToken);
+        await kafkaProducer.Produce(topic, kafkaMessage, messageKey, cancellationToken);
     }
 
     
