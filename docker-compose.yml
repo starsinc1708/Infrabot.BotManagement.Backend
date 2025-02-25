@@ -3,6 +3,7 @@
 services:
   infrabot-api-gateway:
     image: infrabot-api
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Infrabot.BotManagement.ApiGateway/Dockerfile
@@ -17,11 +18,11 @@ services:
       - infrabot-network
     depends_on:
       - kafka
-      - redis
-      - bot-management-db
+      - bot-management-api
   
   bot-management-api:
     image: bot-management-api
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Infrabot.BotManagement.WebAPI/Dockerfile
@@ -34,7 +35,6 @@ services:
     networks:
       - infrabot-network
     depends_on:
-      - kafka
       - redis
       - bot-management-db
   
@@ -51,46 +51,47 @@ services:
   
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    restart: unless-stopped
+    container_name: zookeeper
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
       - infrabot-network
-    ports:
-      - "22181:2181"
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
+    container_name: kafka
+    restart: always
     ports:
-      - "29092:29092"
-    hostname: kafka
-    networks:
-      - infrabot-network
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
-
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      - zookeeper
+    networks:
+      - infrabot-network
 
   kafka-ui:
-    image: provectuslabs/kafka-ui
+    image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
-    ports:
-      - "8090:8080"
     restart: always
+    ports:
+      - "9090:8080"
     environment:
-      - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
-    links:
+      KAFKA_CLUSTERS_0_NAME: "Local Kafka"
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "192.168.0.101:9092"
+    depends_on:
       - kafka
-      - zookeeper
     networks:
       - infrabot-network
   
