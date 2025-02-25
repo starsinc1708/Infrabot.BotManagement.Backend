@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
@@ -47,15 +48,10 @@ public class KafkaProducer : IDisposable
     {
         try
         {
-            using var stream = new MemoryStream();
-            await using var writer = new Utf8JsonWriter(stream);
-            JsonSerializer.Serialize(writer, message, _jsonOptions);
-            await writer.FlushAsync(ct);
-
             var msg = new Message<string, byte[]>
             {
                 Key = key,
-                Value = stream.ToArray()
+                Value = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message, _jsonOptions))
             };
 
             var deliveryReport = await _producer.ProduceAsync(topic, msg, ct);
