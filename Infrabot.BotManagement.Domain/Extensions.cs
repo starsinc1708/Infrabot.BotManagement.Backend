@@ -15,18 +15,6 @@ public static class Extensions
         });
     }
     
-    public static void AddTelegramBotClient(this WebApplicationBuilder builder)
-    {
-        var botToken = builder.Configuration["Bot:Token"];
-        
-        if (string.IsNullOrEmpty(botToken))
-            throw new InvalidOperationException("Bot token is not provided in the configuration.");
-
-        builder.Services.AddHttpClient("tg-webhook")
-            .RemoveAllLoggers()
-            .AddTypedClient(httpClient => new TelegramBotClient(botToken, httpClient));
-    }
-        
     public static void ConfigurePostgreDatabase<TDbC>(this WebApplicationBuilder builder, string dbConnectionString)
         where TDbC : DbContext
     {

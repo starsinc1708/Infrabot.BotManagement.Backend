@@ -9,8 +9,6 @@ public static class Extensions
     {
         var baseUrl = builder.Configuration[$"BotManagement:BaseUrl"];
         
-        Console.WriteLine($"BaseUrl: {baseUrl}");
-        
         if (baseUrl == null) 
             throw new ArgumentNullException($"[{baseUrl}] - not found. Can't add grpc clients.");
         

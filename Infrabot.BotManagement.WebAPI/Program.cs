@@ -1,10 +1,10 @@
 using Infrabot.BotManagement.Domain;
 using Infrabot.BotManagement.Domain.Repositories;
 using Infrabot.BotManagement.WebAPI.GrpcServices;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -22,12 +22,8 @@ builder.Services.AddGrpcReflection();
 var dbConnectionString = builder.Configuration["PostgreSQL:BotManagementDb"] 
                          ?? throw new NullReferenceException("PostgreSQL:BotManagementDb");
 
-Console.WriteLine($"dbConnectionString: {dbConnectionString}");
-
 var redisConnectionString = builder.Configuration["ConnectionStrings:Redis"]
                             ?? throw new InvalidOperationException("Connection string for 'Redis' not found.");
-
-Console.WriteLine($"redisConnectionString: {redisConnectionString}");
 
 builder.ConfigurePostgreDatabase<BotManagementDbContext>(dbConnectionString);
 builder.AddBotManagementRedis(redisConnectionString);
