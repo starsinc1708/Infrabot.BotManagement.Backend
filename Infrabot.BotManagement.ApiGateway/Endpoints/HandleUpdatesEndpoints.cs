@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Infrabot.BotManagement.Broker;
 using Infrabot.BotManagement.Broker.Kafka;
 using Infrabot.BotManagement.Domain.Grpc;
 using Infrabot.BotManagement.Domain.UpdateProcessingUtils;
@@ -118,32 +119,18 @@ public static class HandleUpdatesEndpoints
         string topic,
         CancellationToken cancellationToken)
     {
-        using var stream = new MemoryStream();
-        await using var writer = new Utf8JsonWriter(stream);
-
-        writer.WriteStartObject();
-        
-        writer.WriteString("UpdateType", update.Type.ToString());
-        writer.WriteString("UpdateSource", updateSource.ToString());
-        writer.WriteString("Timestamp", DateTime.UtcNow.ToString("o"));
-    
-        writer.WritePropertyName("Modules");
-        writer.WriteStartArray();
-        foreach (var moduleId in activeModuleIds)
+        var kafkaMessage = new KafkaMessage
         {
-            writer.WriteNumberValue(moduleId);
-        }
-        writer.WriteEndArray();
-    
-        writer.WritePropertyName("Update");
-        JsonSerializer.Serialize(writer, update, JsonSerializerOptions);
-        
-        writer.WriteEndObject();
-        
-        await writer.FlushAsync(cancellationToken);
+            UpdateType = update.Type.ToString(),
+            UpdateSource = updateSource.ToString(),
+            Timestamp = DateTime.UtcNow.ToString("o"),
+            Modules = activeModuleIds,
+            Update = update
+        };
+
+        var messageValue = JsonSerializer.Serialize(kafkaMessage, JsonSerializerOptions);
         
         var messageKey = updateSetting.Id.ToString();
-        var messageValue = Encoding.UTF8.GetString(stream.ToArray());
 
         await kafkaProducer.Produce(topic, messageValue, messageKey, cancellationToken);
     }
