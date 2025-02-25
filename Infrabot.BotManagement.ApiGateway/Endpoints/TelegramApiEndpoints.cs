@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Infrabot.BotManagement.Domain.DTOs.BotRequests;
+﻿using Infrabot.BotManagement.Domain.DTOs.BotRequests;
 using Infrabot.BotManagement.Domain.Grpc;
 using Infrabot.BotManagement.Domain.Mappings;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +21,8 @@ public static class TelegramApiEndpoints
 		{
 			try
 			{
-				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var botFromDb = await botClient.GetByIdAsync(new BotIdRequest { BotId = botId }, cancellationToken: cancellationToken);
+				var botToken = botFromDb.Bot.Token;
 				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 				
 				var webhookInfo = await bot.GetWebhookInfo(cancellationToken);
@@ -43,8 +42,8 @@ public static class TelegramApiEndpoints
 		{
 			try
 			{
-				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var botFromDb = await botClient.GetByIdAsync(new BotIdRequest { BotId = botId }, cancellationToken: cancellationToken);
+				var botToken = botFromDb.Bot.Token;
 				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 				
 				if (request.AllowedUpdates != null)
@@ -82,13 +81,12 @@ public static class TelegramApiEndpoints
 		group.MapPost("/{botId:long}/getMe", async (
 			long botId,
 			[FromServices] TelegramBotService.TelegramBotServiceClient botClient,
-			IConfiguration configuration,
 			CancellationToken cancellationToken) =>
 		{
 			try
 			{
-				var botsFromDB = await botClient.GetAllAsync(new Empty(), cancellationToken: cancellationToken);
-				var botToken = botsFromDB.Bots.FirstOrDefault(b => b.Id == botId)?.Token ?? string.Empty;
+				var botFromDb = await botClient.GetByIdAsync(new BotIdRequest { BotId = botId }, cancellationToken: cancellationToken);
+				var botToken = botFromDb.Bot.Token;
 				var bot = new TelegramBotClient(botToken, cancellationToken: cancellationToken);
 				
 				var webhookSettings = await bot.GetWebhookInfo(cancellationToken);
