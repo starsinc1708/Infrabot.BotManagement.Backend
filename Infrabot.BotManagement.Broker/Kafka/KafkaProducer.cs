@@ -20,8 +20,6 @@ public class KafkaProducer : IDisposable
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         var bootstrapServers = configuration["ConnectionStrings:Kafka"]
                                ?? throw new ArgumentNullException();
-        
-        Console.WriteLine($"Kafka connString: {bootstrapServers}");
 
         _logger.LogInformation("Connecting to Kafka at {BootstrapServers}", bootstrapServers);
 
